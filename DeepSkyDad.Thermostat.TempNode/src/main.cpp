@@ -3,30 +3,43 @@
 #include <ESP8266mDNS.h>
 #include <ArduinoJson.h>
 #include <ESP8266WebServer.h>
+#include <DallasTemperature.h>
 
 /***** CONSTANTS *****/
 
-#define ONE_WIRE_PIN 14           //D5
+#define DS18B20_PIN 14           //D5
 
 StaticJsonBuffer<400> _jsonBuffer;
 ESP8266WebServer _server(80);
+
+OneWire _ds(DS18B20_PIN);
+DallasTemperature _sensors(&_ds);
+float _temperatureCelsius = -127;
+long _tempRefreshLastMillis;
+long _tempRefreshPeriodMilis = 5000;
 
 /***** IMPLEMENTATION *****/
 
 void wwwSendData()
 {
   JsonObject &data = _jsonBuffer.createObject();
-  data["temperature"] = 123;
+  data["temperature"] = _temperatureCelsius;
   String json;
   data.printTo(json);
   _jsonBuffer.clear();
   _server.send(200, "text/json", json);
 }
 
+void readTempSensor()
+{
+	_sensors.requestTemperatures();
+	_temperatureCelsius = _sensors.getTempCByIndex(0);
+}
+
 void setup()
 {
   //initialize pins
-  pinMode(ONE_WIRE_PIN, INPUT);
+  pinMode(DS18B20_PIN, INPUT);
 
   //start searial
   Serial.begin(9600);
@@ -35,10 +48,14 @@ void setup()
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
+  //begin temperature sensor
+  _sensors.begin();
+  readTempSensor();
+
   //connect to wifi
   WiFi.begin("v&p", "jovanovic64");
 
-  MDNS.begin("termostat");
+  MDNS.begin("temperature");
 
   Serial.println();
   Serial.print("Connecting");
@@ -62,4 +79,9 @@ void setup()
 void loop()
 {
   _server.handleClient();
+
+  if(millis() > _tempRefreshLastMillis + _tempRefreshPeriodMilis) {
+		readTempSensor();
+		_tempRefreshLastMillis = millis();
+	}
 }
