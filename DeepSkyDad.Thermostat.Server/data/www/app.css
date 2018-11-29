@@ -1,0 +1,32 @@
+html, body, h1, h2, h3, h4, h5, h6 {
+	font-family:'Roboto Condensed',sans-serif;
+	color: rgba(255,255,255,0.8);
+}
+
+body {
+	background-color: #353230;
+}
+
+.container {
+	padding-right: 0px;
+    padding-left: 0px;
+    margin-right: 0;
+    margin-left: 0;
+	width:100%;
+}
+
+.row {
+	margin-right: 0px;
+	margin-left: 0px;
+}
+
+.custom-loader {
+  display: none;
+  position: fixed;
+  z-index: 1000000;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: rgba( 255, 255, 255, .2 ) url('loader.svg') 50% 50% no-repeat;
+}
