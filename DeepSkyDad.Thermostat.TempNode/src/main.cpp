@@ -7,7 +7,9 @@
 
 /***** CONSTANTS *****/
 
-#define DS18B20_PIN 14           //D5
+#define DS18B20_PIN 15           //D5
+
+/***** VARIABLES *****/
 
 StaticJsonBuffer<400> _jsonBuffer;
 ESP8266WebServer _server(80);
@@ -15,8 +17,8 @@ ESP8266WebServer _server(80);
 OneWire _ds(DS18B20_PIN);
 DallasTemperature _sensors(&_ds);
 float _temperatureCelsius = -127;
-long _tempRefreshLastMillis;
-long _tempRefreshPeriodMilis = 5000;
+unsigned long _tempRefreshLastMillis;
+unsigned long _tempRefreshPeriodMilis = 5000;
 
 /***** IMPLEMENTATION *****/
 
@@ -53,7 +55,7 @@ void setup()
   readTempSensor();
 
   //connect to wifi
-  WiFi.begin("xxxx", "xxxx");
+  WiFi.begin("xxx", "xxx");
 
   MDNS.begin("temperature");
 
@@ -83,5 +85,8 @@ void loop()
   if(millis() > _tempRefreshLastMillis + _tempRefreshPeriodMilis) {
 		readTempSensor();
 		_tempRefreshLastMillis = millis();
+     Serial.print("Temperature refreshed: ");
+     Serial.print(_temperatureCelsius);
+     Serial.println(" C");
 	}
 }
