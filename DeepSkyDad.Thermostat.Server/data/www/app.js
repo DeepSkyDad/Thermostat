@@ -34,6 +34,18 @@ $(document).ready(function () {
 		save("burner", parseInt(this.value));
 	});
 	
+	$("#tempUpBtn").click(function() {
+		var newVal = parseFloat($("#tempInput").val()) + 0.5;
+		
+		$("#tempInput").val(newVal);
+	});
+	
+	$("#tempDownBtn").click(function() {
+		var newVal = parseFloat($("#tempInput").val()) - 0.5;
+		
+		$("#tempInput").val(newVal);
+	});
+	
 	var save = function(key, value) {
 		var data = {};
 		data[key] = value;
