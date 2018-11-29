@@ -53,7 +53,7 @@ void setup()
   readTempSensor();
 
   //connect to wifi
-  WiFi.begin("v&p", "jovanovic64");
+  WiFi.begin("xxxx", "xxxx");
 
   MDNS.begin("temperature");
 
