@@ -109,7 +109,7 @@ void setup()
   }
 
   //connect to wifi
-  WiFi.begin("v&p", "jovanovic64");
+  WiFi.begin("xxxx", "xxxxx");
 
   MDNS.begin("termostat");
 
