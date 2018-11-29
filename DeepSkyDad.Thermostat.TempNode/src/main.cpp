@@ -7,7 +7,7 @@
 
 /***** CONSTANTS *****/
 
-#define DS18B20_PIN 15           //D5
+#define DS18B20_PIN 4
 
 /***** VARIABLES *****/
 
