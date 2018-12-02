@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <ArduinoOTA.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 #include <ArduinoJson.h>
@@ -34,8 +35,8 @@ void wwwSendData()
 
 void readTempSensor()
 {
-	_sensors.requestTemperatures();
-	_temperatureCelsius = _sensors.getTempCByIndex(0);
+  _sensors.requestTemperatures();
+  _temperatureCelsius = _sensors.getTempCByIndex(0);
 }
 
 void setup()
@@ -57,8 +58,6 @@ void setup()
   //connect to wifi
   WiFi.begin("xxx", "xxx");
 
-  MDNS.begin("temperature");
-
   Serial.println();
   Serial.print("Connecting");
   while (WiFi.status() != WL_CONNECTED)
@@ -71,6 +70,13 @@ void setup()
   Serial.print("IP Address is: ");
   Serial.println(WiFi.localIP());
 
+  //enable over the air update, e.g. in PlatformIO run this command: "platformio run --target upload --upload-port 10.20.1.138"
+  ArduinoOTA.setHostname("temperature");
+  ArduinoOTA.begin();
+
+  MDNS.begin("temperature");
+  MDNS.addService("esp", "tcp", 8080);
+
   _server.on("/api/status", HTTP_GET, []() {
     wwwSendData();
   });
@@ -80,13 +86,16 @@ void setup()
 
 void loop()
 {
+  ArduinoOTA.handle();
+
   _server.handleClient();
 
-  if(millis() > _tempRefreshLastMillis + _tempRefreshPeriodMilis) {
-		readTempSensor();
-		_tempRefreshLastMillis = millis();
-     Serial.print("Temperature refreshed: ");
-     Serial.print(_temperatureCelsius);
-     Serial.println(" C");
-	}
+  if (millis() > _tempRefreshLastMillis + _tempRefreshPeriodMilis)
+  {
+    readTempSensor();
+    _tempRefreshLastMillis = millis();
+    Serial.print("Temperature refreshed: ");
+    Serial.print(_temperatureCelsius);
+    Serial.println(" C");
+  }
 }

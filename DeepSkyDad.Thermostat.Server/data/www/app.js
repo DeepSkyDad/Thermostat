@@ -8,10 +8,10 @@ $(document).ready(function () {
 	};
 
 	var checkStatus = function (callback) {
-		showLoader();
 		$.ajax({
 			url: "/api/status",
 			error: function () {
+				alert("Error");
 				hideLoader();
 				//alert("Error");
 			},
@@ -26,15 +26,30 @@ $(document).ready(function () {
 	}
 
 	var populateStatus = function(data) {
+		$('#temperature').html(data.temperature.toFixed(2).replace('.', ',') + ' C');
+
+		$('input[name="burner"]').parent().removeClass('active');
+		$('input[name="heating_pump"]').parent().removeClass('active');
+		$('input[name="water_pump"]').parent().removeClass('active');
+		
 		$('input[name="burner"][value=' + (data['burner'])  + ']').parent().addClass('active');
-		$('input[name="burner"][value=' + (data['burner'] == 1 ? 0 : 1)  + ']').parent().removeClass('active');
+		$('input[name="heating_pump"][value=' + (data['heating_pump'])  + ']').parent().addClass('active');
+		$('input[name="water_pump"][value=' + (data['water_pump'])  + ']').parent().addClass('active');
 	};
 
 	$("#burner :input").change(function() {
 		save("burner", parseInt(this.value));
 	});
+
+	$("#heating_pump :input").change(function() {
+		save("heating_pump", parseInt(this.value));
+	});
+
+	$("#water_pump :input").change(function() {
+		save("water_pump", parseInt(this.value));
+	});
 	
-	$("#tempUpBtn").click(function() {
+	/*$("#tempUpBtn").click(function() {
 		var newVal = parseFloat($("#tempInput").val()) + 0.5;
 		
 		$("#tempInput").val(newVal);
@@ -44,7 +59,7 @@ $(document).ready(function () {
 		var newVal = parseFloat($("#tempInput").val()) - 0.5;
 		
 		$("#tempInput").val(newVal);
-	});
+	});*/
 	
 	var save = function(key, value) {
 		var data = {};
@@ -56,6 +71,7 @@ $(document).ready(function () {
 			data: JSON.stringify(data),
 			contentType: 'application/json',
 			error: function () {
+				alert("error");
 				hideLoader();
 			},
 			success: function (data) {
@@ -64,5 +80,10 @@ $(document).ready(function () {
 		});
 	};
 	
+	showLoader();
 	checkStatus();
+
+	setInterval(function() {
+		checkStatus();
+	}, 5000);
 });

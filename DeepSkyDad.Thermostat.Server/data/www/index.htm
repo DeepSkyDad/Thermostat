@@ -1,18 +1,44 @@
 <html>
+
 <head>
-<title>DSD AF2</title>
-<script src="jquery.js"></script>
-<script src="jquery.mobile.min.js"></script>
-<link rel="stylesheet" href="bootstrap.min.css">
-<script src="bootstrap.min.js"></script>
-<link rel="stylesheet" href="app.css">
-<script src="app.js"></script>
-<link rel="stylesheet" href="fonts.css">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, user-scalable=no" />
+	<title>DSD AF2</title>
+	<script src="jquery.js"></script>
+	<script src="jquery.mobile.min.js"></script>
+	<link rel="stylesheet" href="bootstrap.min.css">
+	<script src="bootstrap.min.js"></script>
+	<link rel="stylesheet" href="app.css">
+	<script src="app.js"></script>
+	<link rel="stylesheet" href="fonts.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no" />
 </head>
+
 <body>
-    <div class="container" style="padding:50px">
+	<div class="container" style="padding:50px">
+		<div class="row">
+			<div class="col-sm-6">
+				<span style="margin-bottom:15px;">
+					<h4 style="height:46px;line-height: 46px;margin: 0;">Temperatura (zrak)</h4>
+				</span>
+			</div>
+			<div class="col-sm-6">
+				<span style="margin-bottom:15px;">
+					<h4 id="temperature" style="height:46px;line-height: 46px;margin: 0;">N/A</h4>
+				</span>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6">
+				<span style="margin-bottom:15px;">
+					<h4 style="height:46px;line-height: 46px;margin: 0;">Temperatura (voda)</h4>
+				</span>
+			</div>
+			<div class="col-sm-6">
+				<span style="margin-bottom:15px;">
+					<h4 id="temperatureWater" style="height:46px;line-height: 46px;margin: 0;">N/A</h4>
+				</span>
+			</div>
+		</div>
 		<div class="row">
 			<div class="col-sm-6">
 				<span style="margin-bottom:15px;">
@@ -21,34 +47,41 @@
 			</div>
 			<div class="col-sm-6">
 				<div id="burner" class="btn-group btn-group-toggle" data-toggle="buttons">
-				  <label class="btn btn-lg btn-primary">
-					<input type="radio" name="burner" value="1" autocomplete="off"> ON
-				  </label>
-				  <label class="btn btn-lg btn-primary">
-					<input type="radio" name="burner" value="0" autocomplete="off"> OFF
-				  </label>
+					<label class="btn btn-lg btn-primary">
+						<input type="radio" name="burner" value="1" autocomplete="off"> ON
+					</label>
+					<label class="btn btn-lg btn-primary">
+						<input type="radio" name="burner" value="0" autocomplete="off"> OFF
+					</label>
 				</div>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-sm-6">
 				<span style="margin-bottom:15px;">
-					<h4 style="height:46px;line-height: 46px;margin: 0;">Trenutna temperatura</h4>
+					<h4 style="height:46px;line-height: 46px;margin: 0;">Željena temperatura (zrak)</h4>
 				</span>
 			</div>
 			<div class="col-sm-6">
-				<span style="margin-bottom:15px;">
-					<h4 style="height:46px;line-height: 46px;margin: 0;">19.5C</h4>
-				</span>
+				<div id="heating_pump" class="btn-group btn-group-toggle" data-toggle="buttons">
+					<label class="btn btn-lg btn-primary active">
+						<input type="radio" name="heating_pump" value="0" autocomplete="off"> OFF
+					</label>
+					<label class="btn btn-lg btn-primary">
+						<input type="radio" name="heating_pump" value="1" autocomplete="off"> 18
+					</label>
+					<label class="btn btn-lg btn-primary">
+						<input type="radio" name="heating_pump" value="2" autocomplete="off"> 21.5
+					</label>
+					<label class="btn btn-lg btn-primary">
+						<input type="radio" name="heating_pump" value="3" autocomplete="off"> 23
+					</label>
+					<label class="btn btn-lg btn-primary">
+						<input type="radio" name="heating_pump" value="4" autocomplete="off"> ON
+					</label>
+				</div>
 			</div>
-		</div>
-		<div class="row">
-			<div class="col-sm-6">
-				<span style="margin-bottom:15px;">
-					<h4 style="height:46px;line-height: 46px;margin: 0;">Željena temperatura</h4>
-				</span>
-			</div>
-			<div class="col-sm-3">
+			<!--<div class="col-sm-3">
 				<span style="margin-bottom:15px;">
 					<input id="tempInput" type="number" class="form-control" value="21" style="height: 46px;font-size: 20px;" />
 				</span>
@@ -58,9 +91,26 @@
 					<button id="tempUpBtn" class="btn btn-lg btn-primary">+</button>
 					<button id="tempDownBtn" class="btn btn-lg btn-primary">-</button>
 				</div>
+			</div>-->
+		</div>
+		<div class="row">
+			<div class="col-sm-6">
+				<span style="margin-bottom:15px;">
+					<h4 style="height:46px;line-height: 46px;margin: 0;">Voda</h4>
+				</span>
+			</div>
+			<div class="col-sm-6">
+				<div id="water_pump" class="btn-group btn-group-toggle" data-toggle="buttons">
+					<label class="btn btn-lg btn-primary">
+						<input type="radio" name="water_pump" value="1" autocomplete="off"> ON
+					</label>
+					<label class="btn btn-lg btn-primary">
+						<input type="radio" name="water_pump" value="0" autocomplete="off"> OFF
+					</label>
+				</div>
 			</div>
 		</div>
-    </div>
+	</div>
 </body>
 
 
@@ -71,4 +121,5 @@
 		</div>-->
 	</div>
 </div>
+
 </html>

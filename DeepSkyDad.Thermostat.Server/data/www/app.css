@@ -17,7 +17,8 @@ body {
 
 .row {
 	margin-right: 0px;
-	margin-left: 0px;
+  margin-left: 0px;
+  margin-top: 8px;
 }
 
 .custom-loader {
@@ -29,4 +30,9 @@ body {
   height: 100%;
   width: 100%;
   background: rgba( 255, 255, 255, .2 ) url('loader.svg') 50% 50% no-repeat;
+}
+
+.btn-primary.active {
+  background-color: rgba(0,255,0,0.4) !important;
+  font-weight: bold !important;
 }
