@@ -132,7 +132,7 @@ void setup()
   }
 
   //connect to wifi
-  WiFi.begin("v&p", "jovanovic64");
+  WiFi.begin("xxx", "xxx");
 
   Serial.println();
   Serial.print("Connecting");
