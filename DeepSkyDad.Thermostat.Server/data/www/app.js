@@ -26,7 +26,7 @@ $(document).ready(function () {
 	}
 
 	var populateStatus = function(data) {
-		$('#temperature').html(data.temperature.toFixed(2).replace('.', ',') + ' C');
+		$('#tempHum').html(data.temperature.toFixed(2).replace('.', ',') + ' C / ' + data.humidity.toFixed(2).replace('.', ',') + ' %');
 
 		$('input[name="burner"]').parent().removeClass('active');
 		$('input[name="heating_pump"]').parent().removeClass('active');

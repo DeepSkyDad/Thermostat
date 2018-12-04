@@ -35,7 +35,8 @@ bool _timeSet = false;
 
 bool _tempNodeFound = false;
 String _tempNodeIp;
-float _temperature = -127;
+float _temperature = 0;
+float _humidity = 0;
 float _temperaturePresets[] = {0, 18, 21.5, 23, 30};
 
 int refreshCurrentMillis = 0;
@@ -76,7 +77,7 @@ void readPins()
 void writePins()
 {
   digitalWrite(RELAY_CH1_BURNER, _settings.BURNER);
-  if(_temperature != -127 && _temperaturePresets[_settings.HEATING_PUMP] > _temperature) {
+  if(_temperature > 0 && _temperaturePresets[_settings.HEATING_PUMP] > _temperature) {
       digitalWrite(RELAY_CH2_HEATING_PUMP, HIGH);
   } else {
       digitalWrite(RELAY_CH2_HEATING_PUMP, LOW);
@@ -91,6 +92,7 @@ void wwwSendData()
   data["heating_pump"] = _settings.HEATING_PUMP;
   data["water_pump"] = _settings.WATER_PUMP;
   data["temperature"] = _temperature;
+  data["humidity"] = _humidity;
   String json;
   data.printTo(json);
   _jsonBuffer.clear();
@@ -130,7 +132,7 @@ void setup()
   }
 
   //connect to wifi
-  WiFi.begin("xxx", "xxx");
+  WiFi.begin("v&p", "jovanovic64");
 
   Serial.println();
   Serial.print("Connecting");
@@ -194,7 +196,7 @@ void loop()
   _server.handleClient();
 
   refreshCurrentMillis = millis();
-  if (refreshCurrentMillis - refreshPrevMillis > 5000)
+  if (refreshCurrentMillis - refreshPrevMillis > 30000)
   {
     refreshPrevMillis = refreshCurrentMillis;
     //Serial.println(timeClient.getFormattedTime());
@@ -208,7 +210,9 @@ void loop()
         String response = http.getString();
         JsonObject &root = _jsonBuffer.parseObject(response);
         _temperature = root.get<float>("temperature");
-         _jsonBuffer.clear();
+        _humidity = root.get<float>("humidity");
+        _jsonBuffer.clear();
+        writePins();
       }
       http.end(); //Close connection
     }

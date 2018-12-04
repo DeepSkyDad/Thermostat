@@ -4,20 +4,20 @@
 #include <ESP8266mDNS.h>
 #include <ArduinoJson.h>
 #include <ESP8266WebServer.h>
-#include <DallasTemperature.h>
+#include "DHTesp.h"
 
 /***** CONSTANTS *****/
-
-#define DS18B20_PIN 4
+  
+#define DHT22_PIN 4
 
 /***** VARIABLES *****/
 
 StaticJsonBuffer<400> _jsonBuffer;
 ESP8266WebServer _server(80);
 
-OneWire _ds(DS18B20_PIN);
-DallasTemperature _sensors(&_ds);
+DHTesp _dht;
 float _temperatureCelsius = -127;
+float _humidity = 0;
 unsigned long _tempRefreshLastMillis;
 unsigned long _tempRefreshPeriodMilis = 5000;
 
@@ -27,6 +27,7 @@ void wwwSendData()
 {
   JsonObject &data = _jsonBuffer.createObject();
   data["temperature"] = _temperatureCelsius;
+  data["humidity"] = _humidity;
   String json;
   data.printTo(json);
   _jsonBuffer.clear();
@@ -35,14 +36,15 @@ void wwwSendData()
 
 void readTempSensor()
 {
-  _sensors.requestTemperatures();
-  _temperatureCelsius = _sensors.getTempCByIndex(0);
+  TempAndHumidity newValues = _dht.getTempAndHumidity();
+  _temperatureCelsius = newValues.temperature;
+  _humidity = newValues.humidity;
 }
 
 void setup()
 {
   //initialize pins
-  pinMode(DS18B20_PIN, INPUT);
+  pinMode(DHT22_PIN, INPUT);
 
   //start searial
   Serial.begin(9600);
@@ -52,7 +54,7 @@ void setup()
   }
 
   //begin temperature sensor
-  _sensors.begin();
+  _dht.setup(DHT22_PIN, DHTesp::DHT22);
   readTempSensor();
 
   //connect to wifi
@@ -94,8 +96,10 @@ void loop()
   {
     readTempSensor();
     _tempRefreshLastMillis = millis();
-    Serial.print("Temperature refreshed: ");
-    Serial.print(_temperatureCelsius);
+    Serial.print("Temperature: ");
+    Serial.println(_temperatureCelsius);
+    Serial.print("Humidity: ");
+    Serial.println(_humidity);
     Serial.println(" C");
   }
 }
