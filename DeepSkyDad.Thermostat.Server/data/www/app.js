@@ -11,7 +11,7 @@ $(document).ready(function () {
 		$.ajax({
 			url: "/api/status",
 			error: function () {
-				alert("Error");
+				//alert("Error");
 				hideLoader();
 				//alert("Error");
 			},
@@ -35,6 +35,16 @@ $(document).ready(function () {
 		$('input[name="burner"][value=' + (data['burner'])  + ']').parent().addClass('active');
 		$('input[name="heating_pump"][value=' + (data['heating_pump'])  + ']').parent().addClass('active');
 		$('input[name="water_pump"][value=' + (data['water_pump'])  + ']').parent().addClass('active');
+
+		$('#relayIndicatorBurner').removeClass('relay-indicator-on');
+		$('#relayIndicatorHeatingPump').removeClass('relay-indicator-on');
+		$('#relayIndicatorWaterPump').removeClass('relay-indicator-on');
+		
+		if(data["relay_burner"]) $('#relayIndicatorBurner').addClass('relay-indicator-on');
+		if(data["relay_heating_pump"]) $('#relayIndicatorHeatingPump').addClass('relay-indicator-on');
+		if(data["relay_water_pump"]) $('#relayIndicatorWaterPump').addClass('relay-indicator-on');
+		
+				
 	};
 
 	$("#burner :input").change(function() {
@@ -76,6 +86,7 @@ $(document).ready(function () {
 			},
 			success: function (data) {
 				hideLoader();
+				populateStatus(data);
 			}
 		});
 	};
@@ -85,5 +96,5 @@ $(document).ready(function () {
 
 	setInterval(function() {
 		checkStatus();
-	}, 5000);
+	}, 15000);
 });

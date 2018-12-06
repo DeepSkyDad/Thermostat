@@ -36,3 +36,21 @@ body {
   background-color: rgba(0,255,0,0.4) !important;
   font-weight: bold !important;
 }
+
+.relay-indicator {
+  display: block;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  width: 26px;
+  height: 26px;
+  background: rgba(2550,0,0,0.4);
+  margin-top: 10px;
+  margin-right: 10px;
+  border: 2px solid white;
+  border-radius: 17px;
+}
+
+.relay-indicator-on {
+  background-color: rgba(0,255,0,0.4) !important;
+}

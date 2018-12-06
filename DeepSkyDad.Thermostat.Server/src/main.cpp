@@ -32,6 +32,8 @@ WiFiUDP ntpUDP;
 int ntpUtcOffset = 1;
 NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", ntpUtcOffset * 3600, 60000);
 bool _timeSet = false;
+bool _oddDay = false;
+int _dayHours = -1;
 
 bool _tempNodeFound = false;
 String _tempNodeIp;
@@ -63,15 +65,7 @@ void eepromInit()
     _settings.HEATING_PUMP = 0;
     _settings.WATER_PUMP = 0;
     _settings.CHECKSUM = 0;
-    eepromWrite();
   }
-}
-
-void readPins()
-{
-  _settings.BURNER = digitalRead(RELAY_CH1_BURNER);
-  _settings.HEATING_PUMP = digitalRead(RELAY_CH2_HEATING_PUMP);
-  _settings.WATER_PUMP = digitalRead(RELAY_CH3_WATER_PUMP);
 }
 
 void writePins()
@@ -82,7 +76,17 @@ void writePins()
   } else {
       digitalWrite(RELAY_CH2_HEATING_PUMP, LOW);
   }
-  digitalWrite(RELAY_CH3_WATER_PUMP, _settings.WATER_PUMP);
+
+  if(_settings.WATER_PUMP == 0 || _settings.WATER_PUMP == 1) {
+      digitalWrite(RELAY_CH3_WATER_PUMP, _settings.WATER_PUMP);
+  } else if(_settings.WATER_PUMP == 2) {
+    //water heat auto mode -> heat water every other day between 17:00 and 23:00
+    if(_oddDay && _dayHours >= 17 && _dayHours < 23) {
+      digitalWrite(RELAY_CH3_WATER_PUMP, HIGH);
+    } else {
+      digitalWrite(RELAY_CH3_WATER_PUMP, LOW);
+    }
+  }
 }
 
 void wwwSendData()
@@ -93,6 +97,11 @@ void wwwSendData()
   data["water_pump"] = _settings.WATER_PUMP;
   data["temperature"] = _temperature;
   data["humidity"] = _humidity;
+  data["relay_burner"] = digitalRead(RELAY_CH1_BURNER);
+  data["relay_heating_pump"] = digitalRead(RELAY_CH2_HEATING_PUMP);
+  data["relay_water_pump"] = digitalRead(RELAY_CH3_WATER_PUMP);
+  data["odd_day"] = _oddDay;
+  data["day_hours"] = _dayHours;
   String json;
   data.printTo(json);
   _jsonBuffer.clear();
@@ -113,16 +122,29 @@ void wwwSaveData()
   wwwSendData();
 }
 
+void updateTime() {
+  if(!_timeSet) {
+    _timeSet = timeClient.update();
+  }
+
+  if(_timeSet) {
+    _oddDay = (timeClient.getEpochTime()  / 86400L) % 2 != 0;
+    _dayHours = timeClient.getHours();
+  }
+}
+
 void setup()
 {
   //initialize pins
   pinMode(RELAY_CH1_BURNER, OUTPUT);
   pinMode(RELAY_CH2_HEATING_PUMP, OUTPUT);
   pinMode(RELAY_CH3_WATER_PUMP, OUTPUT);
+  digitalWrite(RELAY_CH1_BURNER, LOW);
+  digitalWrite(RELAY_CH3_WATER_PUMP, LOW);
+  digitalWrite(RELAY_CH3_WATER_PUMP, LOW);
 
-  //read eeprom and write relay pins
+  //read eeprom settings
   eepromInit();
-  writePins();
 
   //start searial
   Serial.begin(9600);
@@ -146,14 +168,17 @@ void setup()
   Serial.print("IP Address is: ");
   Serial.println(WiFi.localIP());
 
-  //enable over the air update, e.g. in PlatformIO run this command: "platformio run --target upload --upload-port 10.20.1.140"
+  //enable over the air update, e.g. in PlatformIO run this commands:
+  //for firmware: "platformio run --target upload --upload-port 10.20.1.140"
+  //for file system image: "platformio run --target uploadfs --upload-port 10.20.1.140"
   ArduinoOTA.setHostname("termostat");
   ArduinoOTA.begin();
 
   MDNS.begin("termostat");
 
-  //start NTP client
+  //start NTP client, read time
   timeClient.begin();
+  updateTime();
 
   //start web server
   SPIFFS.begin();
@@ -168,20 +193,18 @@ void setup()
   _server.serveStatic("/", SPIFFS, "/www/");
 
   _server.begin();
+
+  writePins();
 }
 
 void loop()
 {
   ArduinoOTA.handle();
 
-  //initialize time from NTP server
-  if(!_timeSet) {
-    _timeSet =  timeClient.update();
-  }
+  updateTime();
 
   //resolve temperature node ip
   if(!_tempNodeFound) {
-   
     int n = MDNS.queryService("esp", "tcp");
 
     if(n > 0) {
@@ -199,7 +222,6 @@ void loop()
   if (refreshCurrentMillis - refreshPrevMillis > 30000)
   {
     refreshPrevMillis = refreshCurrentMillis;
-    //Serial.println(timeClient.getFormattedTime());
 
     if(_tempNodeFound) {
       HTTPClient http;

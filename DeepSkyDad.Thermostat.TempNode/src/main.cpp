@@ -72,7 +72,9 @@ void setup()
   Serial.print("IP Address is: ");
   Serial.println(WiFi.localIP());
 
-  //enable over the air update, e.g. in PlatformIO run this command: "platformio run --target upload --upload-port 10.20.1.138"
+  //enable over the air update, e.g. in PlatformIO run this commands:
+  //for firmware: "platformio run --target upload --upload-port 10.20.1.140"
+  //for file system image: "platformio run --target uploadfs --upload-port 10.20.1.140"
   ArduinoOTA.setHostname("temperature");
   ArduinoOTA.begin();
 
