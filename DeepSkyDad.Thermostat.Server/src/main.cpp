@@ -169,6 +169,35 @@ void updateTime() {
   }
 }
 
+void updateSensorData() {
+  if(!_tempNodeFound) {
+    int n = MDNS.queryService("esp", "tcp");
+
+    if(n > 0) {
+      _tempNodeFound = true;
+      _tempNodeIp= String(MDNS.IP(0)[0]) + String(".") +
+        String(MDNS.IP(0)[1]) + String(".") +
+        String(MDNS.IP(0)[2]) + String(".") +
+        String(MDNS.IP(0)[3]);
+    }
+  }
+
+  if(_tempNodeFound) {
+      HTTPClient http;
+      http.begin("http://" + _tempNodeIp + "/api/status");
+      int httpCode = http.GET();
+      if (httpCode == 200)
+      {
+        String response = http.getString();
+        JsonObject &root = _jsonBuffer.parseObject(response);
+        _temperature = root.get<float>("temperature");
+        _humidity = root.get<float>("humidity");
+        _jsonBuffer.clear();
+      }
+      http.end(); //Close connection
+    }
+}
+
 void setup()
 {
   //initialize pins
@@ -214,10 +243,13 @@ void setup()
 
   //start NTP client, read time
   timeClient.begin();
-  updateTime();
 
   //start web server
   SPIFFS.begin();
+
+  updateTime();
+  updateSensorData();
+  writePins();
 
   _server.on("/api/status", HTTP_GET, []() {
     wwwSendData();
@@ -229,50 +261,21 @@ void setup()
   _server.serveStatic("/", SPIFFS, "/www/");
 
   _server.begin();
-
-  writePins();
 }
 
 void loop()
 {
-  ArduinoOTA.handle();
-
-  updateTime();
-
-  //resolve temperature node ip
-  if(!_tempNodeFound) {
-    int n = MDNS.queryService("esp", "tcp");
-
-    if(n > 0) {
-      _tempNodeFound = true;
-      _tempNodeIp= String(MDNS.IP(0)[0]) + String(".") +
-        String(MDNS.IP(0)[1]) + String(".") +
-        String(MDNS.IP(0)[2]) + String(".") +
-        String(MDNS.IP(0)[3]);
-    }
-  }
-
-  _server.handleClient();
-
   refreshCurrentMillis = millis();
   if (refreshCurrentMillis - refreshPrevMillis > 30000)
   {
     refreshPrevMillis = refreshCurrentMillis;
 
-    if(_tempNodeFound) {
-      HTTPClient http;
-      http.begin("http://" + _tempNodeIp + "/api/status");
-      int httpCode = http.GET();
-      if (httpCode == 200)
-      {
-        String response = http.getString();
-        JsonObject &root = _jsonBuffer.parseObject(response);
-        _temperature = root.get<float>("temperature");
-        _humidity = root.get<float>("humidity");
-        _jsonBuffer.clear();
-        writePins();
-      }
-      http.end(); //Close connection
-    }
+    updateTime();
+    updateSensorData();
+    writePins();
   }
+
+  ArduinoOTA.handle();
+
+  _server.handleClient();
 }
