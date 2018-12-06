@@ -34,12 +34,12 @@ NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", ntpUtcOffset * 3600, 60000);
 bool _timeSet = false;
 bool _oddDay = false;
 int _dayHours = -1;
+int _day = 0;
 
 bool _tempNodeFound = false;
 String _tempNodeIp;
-float _temperature = 0;
+float _temperature = 100;
 float _humidity = 0;
-float _temperaturePresets[] = {0, 18, 21.5, 23, 30};
 
 int refreshCurrentMillis = 0;
 int refreshPrevMillis = 0;
@@ -68,13 +68,48 @@ void eepromInit()
   }
 }
 
+void writeHeatingPumpLow() {
+  if(_temperature < 18) {
+    digitalWrite(RELAY_CH2_HEATING_PUMP, HIGH);
+  } else {
+    digitalWrite(RELAY_CH2_HEATING_PUMP, LOW);
+  }
+}
+
+void writeHeatingPumpHigh() {
+  if(_temperature < 22.5) {
+    digitalWrite(RELAY_CH2_HEATING_PUMP, HIGH);
+  } else {
+    digitalWrite(RELAY_CH2_HEATING_PUMP, LOW);
+  }
+}
+
 void writePins()
 {
   digitalWrite(RELAY_CH1_BURNER, _settings.BURNER);
-  if(_temperature > 0 && _temperaturePresets[_settings.HEATING_PUMP] > _temperature) {
-      digitalWrite(RELAY_CH2_HEATING_PUMP, HIGH);
+
+  if(_settings.HEATING_PUMP == 1) {
+    writeHeatingPumpLow();
+  } else if(_settings.HEATING_PUMP == 2) {
+    writeHeatingPumpHigh();
+  } else if(_settings.HEATING_PUMP == 3) {
+    digitalWrite(RELAY_CH2_HEATING_PUMP, HIGH);
+  } else if(_settings.HEATING_PUMP == 4) {
+    if(_day == 0 || _day == 6) { //Sunday, Saturday
+      if(_dayHours >= 7 && _dayHours < 20) {
+        writeHeatingPumpHigh();
+      } else {
+        writeHeatingPumpLow();
+      }
+    } else { //Mon-Fri
+      if((_dayHours >= 6 && _dayHours < 7) || (_dayHours >= 15 && _dayHours < 20)) {
+        writeHeatingPumpHigh();
+      } else {
+        writeHeatingPumpLow();
+      }
+    }
   } else {
-      digitalWrite(RELAY_CH2_HEATING_PUMP, LOW);
+    digitalWrite(RELAY_CH2_HEATING_PUMP, LOW);
   }
 
   if(_settings.WATER_PUMP == 0 || _settings.WATER_PUMP == 1) {
@@ -130,6 +165,7 @@ void updateTime() {
   if(_timeSet) {
     _oddDay = (timeClient.getEpochTime()  / 86400L) % 2 != 0;
     _dayHours = timeClient.getHours();
+    _day = timeClient.getDay();
   }
 }
 
