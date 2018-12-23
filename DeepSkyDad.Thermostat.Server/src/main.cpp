@@ -69,7 +69,7 @@ void eepromInit()
 }
 
 void writeHeatingPumpLow() {
-  if(_temperature < 18) {
+  if(_temperature < 19) {
     digitalWrite(RELAY_CH2_HEATING_PUMP, HIGH);
   } else {
     digitalWrite(RELAY_CH2_HEATING_PUMP, LOW);
@@ -108,6 +108,13 @@ void writePins()
         writeHeatingPumpLow();
       }
     }
+  } else if(_settings.HEATING_PUMP == 5) {
+    //Holiday
+    if(_dayHours >= 7 && _dayHours < 20) {
+      writeHeatingPumpHigh();
+    } else {
+      writeHeatingPumpLow();
+    }
   } else {
     digitalWrite(RELAY_CH2_HEATING_PUMP, LOW);
   }
@@ -115,8 +122,8 @@ void writePins()
   if(_settings.WATER_PUMP == 0 || _settings.WATER_PUMP == 1) {
       digitalWrite(RELAY_CH3_WATER_PUMP, _settings.WATER_PUMP);
   } else if(_settings.WATER_PUMP == 2) {
-    //water heat auto mode -> heat water every other day between 17:00 and 23:00
-    if(_oddDay && _dayHours >= 17 && _dayHours < 23) {
+    //water heat auto mode -> heat night between 03:00 and 6:00
+    if(_dayHours >= 3 && _dayHours < 6) {
       digitalWrite(RELAY_CH3_WATER_PUMP, HIGH);
     } else {
       digitalWrite(RELAY_CH3_WATER_PUMP, LOW);

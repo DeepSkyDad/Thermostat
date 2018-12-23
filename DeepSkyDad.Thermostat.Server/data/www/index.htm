@@ -15,7 +15,14 @@
 
 <body>
 	<div class="container" style="padding:5px">
-		<div class="row">
+		<div class="row" style="margin-top:20px;">
+			<div class="col-sm-12">
+				<span style="margin-bottom:15px">
+					<h1 id="tempHum" style="height:46px;line-height: 46px;margin: 0;font-size:45px">22,50 C / 66,10 %</h1>
+				</span>
+			</div>
+		</div>
+		<!--<div class="row">
 			<div class="col-sm-6">
 				<span style="margin-bottom:15px;">
 					<h4 style="height:46px;line-height: 46px;margin: 0;">Temperatura/vlaga (zrak)</h4>
@@ -26,7 +33,7 @@
 					<h4 id="tempHum" style="height:46px;line-height: 46px;margin: 0;">N/A</h4>
 				</span>
 			</div>
-		</div>
+		</div>-->
 		<!--<div class="row">
 			<div class="col-sm-6">
 				<span style="margin-bottom:15px;">
@@ -70,7 +77,7 @@
 						<input type="radio" name="heating_pump" value="0" autocomplete="off"> OFF
 					</label>
 					<label class="btn btn-lg btn-primary">
-						<input type="radio" name="heating_pump" value="1" autocomplete="off"> 18
+						<input type="radio" name="heating_pump" value="1" autocomplete="off"> 19
 					</label>
 					<label class="btn btn-lg btn-primary">
 						<input type="radio" name="heating_pump" value="2" autocomplete="off"> 22.5
@@ -79,7 +86,10 @@
 						<input type="radio" name="heating_pump" value="3" autocomplete="off"> ON
 					</label>
 					<label class="btn btn-lg btn-primary">
-						<input type="radio" name="heating_pump" value="4" autocomplete="off" title="22.5C for 06:00 - 07:00 and 15:00 - 20:00, else 18C"> AUTO
+						<input type="radio" name="heating_pump" value="4" autocomplete="off" title="22.5C for 06:00 - 07:00 and 15:00 - 20:00, else 19C"> AUTO
+					</label>
+					<label class="btn btn-lg btn-primary">
+						<input type="radio" name="heating_pump" value="5" autocomplete="off"> HOLIDAY
 					</label>
 				</div>
 			</div>
