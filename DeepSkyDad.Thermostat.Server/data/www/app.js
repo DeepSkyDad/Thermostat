@@ -28,13 +28,25 @@ $(document).ready(function () {
 	var populateStatus = function(data) {
 		$('#tempHum').html(data.temperature.toFixed(2).replace('.', ',') + ' C / ' + data.humidity.toFixed(2).replace('.', ',') + ' %');
 
-		$('input[name="burner"]').parent().removeClass('active');
+		/*$('input[name="burner"]').parent().removeClass('active');
 		$('input[name="heating_pump"]').parent().removeClass('active');
 		$('input[name="water_pump"]').parent().removeClass('active');
 		
 		$('input[name="burner"][value=' + (data['burner'])  + ']').parent().addClass('active');
 		$('input[name="heating_pump"][value=' + (data['heating_pump'])  + ']').parent().addClass('active');
-		$('input[name="water_pump"][value=' + (data['water_pump'])  + ']').parent().addClass('active');
+		$('input[name="water_pump"][value=' + (data['water_pump'])  + ']').parent().addClass('active');*/
+
+		$('select[name="burner"]').val(data['burner']);
+		$('select[name="heating_pump"]').val(data['heating_pump']);
+		$('select[name="water_pump"]').val(data['water_pump']);
+
+		if(data['burner'] == 2) {
+			$("#heatingWrapper").hide();
+			$("#waterWrapper").hide();
+		} else {
+			$("#heatingWrapper").show();
+			$("#waterWrapper").show();
+		}
 
 		$('#relayIndicatorBurner').removeClass('relay-indicator-on');
 		$('#relayIndicatorHeatingPump').removeClass('relay-indicator-on');
@@ -47,17 +59,27 @@ $(document).ready(function () {
 				
 	};
 
-	$("#burner :input").change(function() {
-		save("burner", parseInt(this.value));
-	});
+	$("#burner").change($.proxy(function() {
+		var burner = parseInt($("#burner").val());
+		
+		if(burner == 2) {
+			$("#heatingWrapper").hide();
+			$("#waterWrapper").hide();
+		} else {
+			$("#heatingWrapper").show();
+			$("#waterWrapper").show();
+		}
 
-	$("#heating_pump :input").change(function() {
-		save("heating_pump", parseInt(this.value));
-	});
+		saveFn("burner", burner, false);
+	}, this));
 
-	$("#water_pump :input").change(function() {
-		save("water_pump", parseInt(this.value));
-	});
+	$("#heating_pump").change($.proxy(function() {
+		saveFn("heating_pump", parseInt($("#heating_pump").val()), false);
+	}, this));
+
+	$("#water_pump").change($.proxy(function() {
+		saveFn("water_pump", parseInt($("#water_pump").val()), false);
+	}, this));
 	
 	/*$("#tempUpBtn").click(function() {
 		var newVal = parseFloat($("#tempInput").val()) + 0.5;
@@ -71,7 +93,7 @@ $(document).ready(function () {
 		$("#tempInput").val(newVal);
 	});*/
 	
-	var save = function(key, value) {
+	var saveFn = function(key, value, supressRetry) {
 		var data = {};
 		data[key] = value;
 		showLoader();
@@ -81,7 +103,8 @@ $(document).ready(function () {
 			data: JSON.stringify(data),
 			contentType: 'application/json',
 			error: function () {
-				alert("error");
+				if(!supressRetry)
+					saveFn(key, value, true);
 				hideLoader();
 			},
 			success: function (data) {
